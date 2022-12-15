@@ -4,7 +4,7 @@ CurrentModule = JuliaGendUniv
 
 # JuliaGendUniv
 
-Documentation for [JuliaGendUniv](https://github.com/00krishna/JuliaGendUniv.jl).
+Documentation for [JuliaGendUniv](https://university-gender-evolution.github.io/JuliaGendUniv.jl/).
 
 ## Project Description
 
