@@ -10,7 +10,7 @@ makedocs(;
     sitename="JuliaGendUniv.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://00krishna.github.io/JuliaGendUniv.jl",
+        canonical="https://university-gender-evolution.github.io/JuliaGendUniv.jl/",
         edit_link="main",
         assets=String[],
     ),
