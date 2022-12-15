@@ -5,4 +5,21 @@
 [![Build Status](https://github.com/university-gender-evolution/JuliaGendUniv.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/00krishna/JuliaGendUniv.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/00krishna/JuliaGendUniv.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/00krishna/JuliaGendUniv.jl)
 
-setup README
+## Project Description
+
+
+
+
+
+## Installation 
+
+
+
+
+## Usage
+
+
+
+
+
+## Collaboration
