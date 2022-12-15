@@ -6,7 +6,7 @@ DocMeta.setdocmeta!(JuliaGendUniv, :DocTestSetup, :(using JuliaGendUniv); recurs
 makedocs(;
     modules=[JuliaGendUniv],
     authors="Krishna Bhogaonker",
-    repo="https://github.com/00krishna/JuliaGendUniv.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/university-gender-evolution/JuliaGendUniv.jl/blob/{commit}{path}#{line}",
     sitename="JuliaGendUniv.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
@@ -20,6 +20,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/00krishna/JuliaGendUniv.jl",
+    repo="https://github.com/university-gender-evolution/JuliaGendUniv.jl",
     devbranch="main",
 )
