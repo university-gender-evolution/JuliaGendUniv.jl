@@ -24,7 +24,7 @@ using ComponentArrays
 using Combinatorics
 
 include("PreprocessingTypes.jl");
-include("PrepareUMData.jl");
+#include("PrepareUMData.jl");
 
 
 
