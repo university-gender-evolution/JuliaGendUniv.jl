@@ -36,8 +36,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: 0.1.0
-          asset-file: '*.dta'
-          asset-output: './'
+          asset-file: 'michigan1979to2009_wGender.dta'
       - name: (DEBUG) Show file output
         run: |
           ls -lah
