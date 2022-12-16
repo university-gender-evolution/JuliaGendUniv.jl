@@ -7,5 +7,5 @@ using Test
 
 @testset "JuliaGendUniv.jl" begin
     # Write your tests here.
-    @test isfile("../michigan1979to2009_wGender.dta") == true
+    @test 1 + 1 == 2
 end
