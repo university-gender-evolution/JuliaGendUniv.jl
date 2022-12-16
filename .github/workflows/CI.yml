@@ -32,14 +32,19 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: KevinRohn/github-full-release-data@v2
+      - name: Get Release data of private repository
+        id: release_data
+        uses: KevinRohn/github-full-release-data@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: 0.1.0
           asset-file: 'michigan1979to2009_wGender.dta'
+          asset-output: 'test/'
       - name: (DEBUG) Show file output
         run: |
+          cd test/
           ls -lah
+          cd ..
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1

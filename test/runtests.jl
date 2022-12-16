@@ -1,5 +1,4 @@
 using JuliaGendUniv
-using URLDownload
 using Test
 
 # pwd() = "/home/runner/work/JuliaGendUniv.jl/JuliaGendUniv.jl/test"
@@ -8,5 +7,5 @@ using Test
 
 @testset "JuliaGendUniv.jl" begin
     # Write your tests here.
-    @test isfile("../michigan1979to2009_wGender.dta")
+    @test isfile("../michigan1979to2009_wGender.dta") == true
 end
