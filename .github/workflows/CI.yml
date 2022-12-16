@@ -19,10 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v2
-      - name: Download and install R packages
+      - name: Install curl package
+        run: |
+          sudo apt-get install -y curl python3-pycurl
+      - name: Download and install R packages - readr
         run: | 
           R -e 'install.packages("readr")'
+      - name: Download and install R packages - forecast
+        run: | 
           R -e 'install.packages("forecast")'
+      - name: Download and install R packages - data.table
+        run: | 
           R -e 'install.packages("data.table")'
       - uses: julia-actions/setup-julia@v1
         with:
