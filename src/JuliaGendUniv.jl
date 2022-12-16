@@ -11,7 +11,7 @@ using Pipe, StatsBase, Chain
 using DataFramesMeta
 using Clustering
 using MultivariateStats
-# using RCall
+using RCall
 using Distances
 using Interpolations
 using Zygote
