@@ -19,7 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v2
-      - run: | 
+      - name: Download and install R packages
+        run: | 
           R -e 'install.packages("readr")'
           R -e 'install.packages("forecast")'
           R -e 'install.packages("data.table")'
@@ -43,10 +44,13 @@ jobs:
           repo: 'university-gender-evolution/JuliaGendUniv.jl'
           version: 'tags/0.1.0'
           file: 'michigan1979to2009_wGender.dta'
+          target: 'test/michigan1979to2009_wGender.dta'
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: (DEBUG) Show file output
+      - name: (DEBUG) Check file download was successful
         run: |
+          cd test
           ls -lah
+          cd ..
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
