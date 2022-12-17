@@ -18,7 +18,9 @@ jobs:
           - '1.8'
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@v2
+      - name: Build R language
+        uses: r-lib/actions/setup-r@v2
+      - name: Setup R_HOME environment variable
       - run: echo "LD_LIBRARY_PATH=$(R RHOME)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       - name: Install curl package
         run: |
@@ -32,7 +34,8 @@ jobs:
       - name: Download and install R packages - data.table
         run: | 
           R -e 'install.packages("data.table")'
-      - uses: julia-actions/setup-julia@v1
+      - name: Install Julia language
+        uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
       - uses: actions/cache@v1
@@ -45,8 +48,9 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - uses: julia-actions/julia-buildpkg@v1
-      - name: Download data for test from private repo
+      - name: Build JuliaGendUniv package
+        uses: julia-actions/julia-buildpkg@v1
+      - name: Download UM datafile for testing
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           repo: 'university-gender-evolution/JuliaGendUniv.jl'
@@ -54,15 +58,16 @@ jobs:
           file: 'michigan1979to2009_wGender.dta'
           target: 'test/michigan1979to2009_wGender.dta'
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: (DEBUG) Check file download was successful
+      - name: Check file download was successful
         run: |
           cd test
           ls -lah
           cd ..
-      - name: (DEBUG) Build RCall package
+      - name: Build RCall package
         run: |
-          julia --project=@. -e 'import Pkg; Pkg.add("RCall"); Pkg.build("RCall");' 
-      - uses: julia-actions/julia-runtest@v1
+          julia --project=@. -e 'import Pkg; Pkg.build("RCall");' 
+      - name: Run julia tests
+        uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
         with:
