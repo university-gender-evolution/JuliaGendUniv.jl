@@ -19,11 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: r-lib/actions/setup-r@v2
+      - run: echo "LD_LIBRARY_PATH=$(R RHOME)/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       - name: Install curl package
         run: |
           sudo apt-get install -y curl python3-pycurl libcurl4-openssl-dev
-          echo $JULIA_HOME
-          cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 $JULIA_HOME/lib/julia/
       - name: Download and install R packages - readr
         run: | 
           R -e 'install.packages("readr")'
@@ -62,8 +61,7 @@ jobs:
           cd ..
       - name: (DEBUG) Build RCall package
         run: |
-          echo $R_HOME
-          julia --project=@. -e 'import Pkg; Pkg.add("RCall"); Pkg.build("RCall")' 
+          julia --project=@. -e 'import Pkg; Pkg.add("RCall"); Pkg.build("RCall");' 
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
