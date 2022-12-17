@@ -22,6 +22,7 @@ jobs:
       - name: Install curl package
         run: |
           sudo apt-get install -y curl python3-pycurl libcurl4-openssl-dev
+          echo $JULIA_HOME
           cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 $JULIA_HOME/lib/julia/
       - name: Download and install R packages - readr
         run: | 
