@@ -22,6 +22,7 @@ jobs:
       - name: Install curl package
         run: |
           sudo apt-get install -y curl python3-pycurl libcurl4-openssl-dev
+          cp /usr/lib/x86_64-linux-gnu/libstdc++.so.6 $JULIA_HOME/lib/julia/
       - name: Download and install R packages - readr
         run: | 
           R -e 'install.packages("readr")'
@@ -60,7 +61,8 @@ jobs:
           cd ..
       - name: (DEBUG) Build RCall package
         run: |
-          julia --project=@. -e 'import Pkg; Pkg.build("RCall")' 
+          echo $R_HOME
+          julia --project=@. -e 'import Pkg; Pkg.add("RCall"); Pkg.build("RCall")' 
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
