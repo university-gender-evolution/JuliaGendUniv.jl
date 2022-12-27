@@ -1,9 +1,41 @@
 using JuliaGendUniv
 using Test
 
+@show pwd()
+
+# Setup test fixtures
+t_preprocess_um_noaudit  = preprocess_data("michigan1979to2009_wGender.dta", 
+    1979, 30, JuliaGendUniv.UM(); audit_config=JuliaGendUniv.NoAudit());
+
+t_preprocess_um_audit = preprocess_data("michigan1979to2009_wGender.dta", 
+    1979, 30, JuliaGendUniv.UM(); audit_config=JuliaGendUniv.DataAudit());
+
+# t_preprocess_um_deptid = get_dept_summary(deptid)
+
+# // TODO setup optimization subpackage  
+# t_optimize_um_params = optimize_parameters(preprocessed_data, model, optimizer_settings; audit_config)
+
+# // TODO setup control subpackage 
+# simulate_model_shocks(preprocessed_data, model, shocks, controls, settings)
+# optimize_parameters(preprocessed_data, model, shocks, controls, settings)
+
+
 
 @testset "JuliaGendUniv environment setup" begin
-    # Write your tests here.
-    @test 1 + 1 == 2
     @test isfile("michigan1979to2009_wGender.dta")
+    @test JuliaGendUniv.UM() isa JuliaGendUniv.AbstractGendUnivDataConfiguration 
+    @test JuliaGendUniv.DataAudit() isa JuliaGendUniv.AbstractDataChecks
+    @test JuliaGendUniv.NoAudit() isa JuliaGendUniv.AbstractDataChecks
 end
+
+@testset "[JuliaGendUniv] prepare UM data" begin
+    @test t_preprocess_um_noaudit isa JuliaGendUniv.UMData
+    @test t_preprocess_um_audit isa JuliaGendUniv.UMData
+    # @test t_preprocess_um_deptid.dept_name == "NOT YET IMPLEMENTED"
+end
+
+@testset "[JuliaGendUniv] optimization module" begin
+    @test 1 + 1 == 2
+
+end
+
