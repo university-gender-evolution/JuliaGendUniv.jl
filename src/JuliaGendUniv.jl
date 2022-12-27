@@ -27,7 +27,7 @@ include("PreprocessingTypes.jl");
 include("PrepareUMData.jl");
 
 
-export preprocess_data 
+export preprocess_data, UM, DataAudit, NoAudit
 
 
 
