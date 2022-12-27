@@ -3,7 +3,7 @@ using DataFrames
 
 
 abstract type AbstractGendUnivDataConfiguration end;
-struct UM <: AbstractGendUnivDataConfiguration end
+struct UM <: AbstractGendUnivDataConfiguration end;
 
 # Configurations for auditing and checking data preprocessing.
 abstract type AbstractDataChecks end;
