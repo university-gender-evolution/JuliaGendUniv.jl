@@ -176,7 +176,7 @@ mutable struct UMData <: GendUnivData
     department_names::Vector{String}
     dept_rate_dict::Vector{Dict{Symbol, Float64}}
     univ_cluster_matrix::Matrix{Float64}
-    _all_department_names::Vector{String}
+    _all_department_names::DataFrame
     processed_df::DataFrame
     dept_data_vector::Vector{UMDeptData}
     univ_sindy_matrix::Matrix{Float64}
@@ -194,7 +194,7 @@ function UMData(file_path::String, df::DataFrame)
                     [string()],
                     [Dict{Symbol, Float64}() for i in 1:2],
                     Matrix(rand(3, 4)),
-                    [string()],
+                    DataFrame(),
                     DataFrame(),
                     UMDeptData[],
                     Matrix(rand(2,2)),

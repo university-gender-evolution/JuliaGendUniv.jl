@@ -1,4 +1,5 @@
 
+FILEPATH_UM_DEPTINDEX = "../data/umdepts.csv" 
 
 
 function _load_univ_data(file_path::String, config::AbstractGendUnivDataConfiguration)
@@ -11,7 +12,8 @@ function _setup_data(file_path::String, ::UM)
     df = DataFrame(StatFiles.load(file_path))
     disallowmissing!(df, error=false)
     d = UMData(file_path, df)
-    d._all_department_names = unique(df.orgname)
+    df_depts = DataFrame(StatFiles.load(FILEPATH_UM_DEPTINDEX))
+    d._all_department_names = df_depts
     return d
 end;
 
