@@ -29,9 +29,10 @@ t_preprocess_um_audit = preprocess_data("michigan1979to2009_wGender.dta",
 end
 
 @testset "[JuliaGendUniv] prepare UM data" begin
-    @test t_preprocess_um_noaudit isa JuliaGendUniv.UMData
-    @test t_preprocess_um_audit isa JuliaGendUniv.UMData
+    # @test t_preprocess_um_noaudit isa JuliaGendUniv.UMData
+    # @test t_preprocess_um_audit isa JuliaGendUniv.UMData
     @test size(t_preprocess_um_audit._all_department_names) == (3736, 2)
+    @test t_preprocess_um_noaudit.num_years == 30
     # @test t_preprocess_um_deptid.dept_name == "NOT YET IMPLEMENTED"
 end
 
