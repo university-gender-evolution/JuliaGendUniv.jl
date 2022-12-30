@@ -176,7 +176,7 @@ mutable struct UMData <: GendUnivData
     department_names::Vector{String}
     dept_rate_dict::Vector{Dict{Symbol, Float64}}
     univ_cluster_matrix::Matrix{Float64}
-    _all_department_names::DataFrame
+    _valid_dept_summary::DataFrame
     processed_df::DataFrame
     dept_data_vector::Vector{UMDeptData}
     univ_sindy_matrix::Matrix{Float64}

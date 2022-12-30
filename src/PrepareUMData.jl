@@ -8,15 +8,27 @@ function _load_univ_data(file_path::String, config::AbstractGendUnivDataConfigur
 end;
 
 
-function _setup_data(file_path::String, ::UM)
+function _setup_data(file_path::String, config::AbstractGendUnivDataConfiguration)
+
     df = DataFrame(StatFiles.load(file_path))
     disallowmissing!(df, error=false)
     d = UMData(file_path, df)
-    df_depts = DataFrame(CSV.File(FILEPATH_UM_DEPTINDEX))
-    d._all_department_names = df_depts
+    _set_department_summaries!(d, config)
     return d
 end;
 
+
+function _set_department_summaries!(univ_data::GendUnivData, ::UM)
+
+    depts_prof = filter(:jobdes => contains("PROF"), univ_data._raw_df)
+    dept_prof_unique = unique(depts_prof.orgname)
+    newdf = @rsubset(univ_data._raw_df, :orgname ∈ dept_prof_unique)
+    df2 = combine(groupby(newdf, [:orgname]), :year => minimum => :first_year,
+                                    :year => maximum => :last_year, 
+                                    :year => length∘unique => :nyears,
+                                    groupindices)
+    univ_data._valid_dept_summary = df2
+end;
 
 function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
