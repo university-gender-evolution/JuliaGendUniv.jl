@@ -20,7 +20,7 @@ end;
 
 function _set_department_summaries!(univ_data::GendUnivData, ::UM)
 
-    depts_prof = filter(:jobdes => contains("PROF"), univ_data._raw_df)
+    depts_prof = subset(univ_data._raw_df, :jobdes => ByRow(contains("PROF")))
     dept_prof_unique = unique(depts_prof.orgname)
     newdf = @rsubset(univ_data._raw_df, :orgname ∈ dept_prof_unique)
     df2 = combine(groupby(newdf, [:orgname]), :year => minimum => :first_year,
@@ -30,27 +30,43 @@ function _set_department_summaries!(univ_data::GendUnivData, ::UM)
     univ_data._valid_dept_summary = df2
 end;
 
-function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
-    outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
-    univdata.department_names = unique(outdf.orgname)
-    univdata.processed_df = @rsubset(univdata._raw_df, :orgname ∈ univdata.department_names)
-end;
+function _get_departments!(univdata::GendUnivData, ::UM)
+
+    # First filter by departments that start in the target year and have 
+    # sufficient subsequent years
+    # //TODO fix nyears condition. If I start in a year other than the first_year,
+    # //TODO I still want to make sure I have sufficient years 
+    df = subset(univdata._valid_dept_summary, 
+                    :first_year => ByRow(==(univdata.first_year)), 
+                    :nyears => ByRow(>=(univdata.num_years)))
+                    
+    univdata.processed_df = subset(univdata._raw_df, :orgname => x -> x .∈ [df.orgname])
+    univdata.department_names = df.orgname
+end
+
+# function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
+#     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
+#     univdata.department_names = unique(outdf.orgname)
+#     univdata.processed_df = @rsubset(univdata._raw_df, :orgname ∈ univdata.department_names)
+# end;
 
 
-function _get_departments_with_professors!(univdata::GendUnivData, ::UM)
-    univdata.processed_df = filter(:jobdes => contains("PROF"), univdata.processed_df)
-    univdata.department_names = unique(univdata.processed_df.orgname)
-end;
+# function _get_departments_with_professors!(univdata::GendUnivData, ::UM)
+#     univdata.processed_df = filter(:jobdes => contains("PROF"), univdata.processed_df)
+#     univdata.department_names = unique(univdata.processed_df.orgname)
+# end;
 
 
-function _get_departments_with_sufficient_years!(univdata::GendUnivData, ::UM)
-    outdf = unique(univdata.processed_df, [:orgname, :year])
-    gdf = groupby(outdf, [:orgname])
-    cdf = combine(gdf, nrow )
-    res = filter(:nrow => >=(univdata.num_years), cdf)
-    univdata.processed_df = subset(univdata.processed_df, :orgname => x -> x .∈ [res.orgname])
-    univdata.department_names = res.orgname
-end;
+# function _get_departments_with_sufficient_years!(univdata::GendUnivData, ::UM)
+#     outdf = unique(univdata.processed_df, [:orgname, :year])
+#     gdf = groupby(outdf, [:orgname])
+#     cdf = combine(gdf, nrow )
+#     res = filter(:nrow => >=(univdata.num_years), cdf)
+#     univdata.processed_df = subset(univdata.processed_df, :orgname => x -> x .∈ [res.orgname])
+#     univdata.department_names = res.orgname
+# end;
+
+
 function preprocess_data(file_path::String, 
                         first_year::Integer, 
                         num_years::Integer, 
@@ -60,9 +76,10 @@ function preprocess_data(file_path::String,
     univ_data = _load_univ_data(file_path, config)
     univ_data.first_year = first_year
     univ_data.num_years = num_years
-    _get_departments_with_target_start_year!(univ_data, config)
-    _get_departments_with_professors!(univ_data, config)
-    _get_departments_with_sufficient_years!(univ_data, config) 
+    _get_departments!(univ_data, config)
+    #_get_departments_with_target_start_year!(univ_data, config)
+    #_get_departments_with_professors!(univ_data, config)
+    #_get_departments_with_sufficient_years!(univ_data, config) 
     # _process_each_dept!(univ_data, config, audit_config)
     # _postprocess_data_arrays!(univ_data, config)
     return univ_data
