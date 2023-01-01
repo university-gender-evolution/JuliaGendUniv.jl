@@ -33,6 +33,7 @@ end
     @test t_preprocess_um_audit isa JuliaGendUniv.UMData
     @test t_preprocess_um_noaudit.num_years == 30
     @test size(t_preprocess_um_audit._valid_dept_summary) == (525, 5)
+    @test length(t_preprocess_um_noaudit.department_names) == 70
     # @test t_preprocess_um_deptid.dept_name == "NOT YET IMPLEMENTED"
 end
 
