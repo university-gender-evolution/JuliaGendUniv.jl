@@ -759,8 +759,8 @@ function preprocess_um_data(df::DataFrame, first_year::Integer, num_years::Integ
     _process_sindy_matrix!(um_data)
     _process_bootstrap_data!(um_data)
     _process_spline_data!(um_data)
-    #_optimization_dde(um_data, audit_config)
-    _finalize_audit(um_data, audit_config) 
+    # _optimization_dde(um_data, audit_config)
+    # _finalize_audit(um_data, audit_config) 
     return um_data
 end;
 
