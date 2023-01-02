@@ -1,6 +1,4 @@
 
-FILEPATH_UM_DEPTINDEX = "../data/umdepts.csv" 
-
 
 function _load_univ_data(file_path::String, config::AbstractGendUnivDataConfiguration)
     dstructure = _setup_data(file_path, config)
@@ -36,13 +34,16 @@ function _get_departments!(univdata::GendUnivData, ::UM)
     # sufficient subsequent years
     # //TODO fix nyears condition. If I start in a year other than the first_year,
     # //TODO I still want to make sure I have sufficient years 
+    # df = subset(univdata._valid_dept_summary, 
+    #                 :first_year => ByRow(==(univdata.first_year)), 
+    #                 :nyears => ByRow(>=(univdata.num_years)))
     df = subset(univdata._valid_dept_summary, 
-                    :first_year => ByRow(==(univdata.first_year)), 
-                    :nyears => ByRow(>=(univdata.num_years)))
-                    
+                    :first_year => ByRow(<=(univdata.first_year)), 
+                    :first_year => f -> univdata._valid_dept_summary.last_year .- f .>= univdata._valid_dept_summary.nyears)
+
     univdata.processed_df = subset(univdata._raw_df, :orgname => x -> x .∈ [df.orgname])
     univdata.department_names = df.orgname
-end
+end;
 
 # function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
 #     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
@@ -66,6 +67,28 @@ end
 #     univdata.department_names = res.orgname
 # end;
 
+function _process_each_dept!(univdata::GendUnivData, ::UM, audit_config)    
+    for (index, value) in enumerate(univdata.department_names)
+        input = filter(:orgname => contains(value), univdata.processed_df)
+        res = preprocess_um_data(input, univdata.first_year, univdata.num_years, audit_config)
+        push!(univdata.dept_data_vector, res)
+        @show value
+        @show nrow(res.processed_data)
+    end
+end;
+
+function _postprocess_data_arrays!(univdata::GendUnivData, ::UM)
+
+    t1 = [univdata.dept_data_vector[i].processed_data for i in 1:length(univdata.dept_data_vector)]
+    t2 = [univdata.dept_data_vector[i].cluster_vector[1:univdata.num_years*6] for i in 1:length(univdata.dept_data_vector)]
+    t3 = [univdata.dept_data_vector[i].sindy_matrix[1:univdata.num_years, :] for i in 1:length(univdata.dept_data_vector)]
+    t4 = [univdata.dept_data_vector[i].bootstrap_df[1:univdata.num_years, :] for i in 1:length(univdata.dept_data_vector)]
+    univdata.processed_df = reduce(vcat, t1)
+    univdata.univ_cluster_matrix = reduce(hcat, t2)
+    univdata.univ_sindy_matrix = reduce(hcat, t3)
+    univdata.univ_bootstrap_df = reduce(vcat, t4)
+end;
+
 
 function preprocess_data(file_path::String, 
                         first_year::Integer, 
@@ -80,7 +103,7 @@ function preprocess_data(file_path::String,
     #_get_departments_with_target_start_year!(univ_data, config)
     #_get_departments_with_professors!(univ_data, config)
     #_get_departments_with_sufficient_years!(univ_data, config) 
-    # _process_each_dept!(univ_data, config, audit_config)
-    # _postprocess_data_arrays!(univ_data, config)
+    _process_each_dept!(univ_data, config, audit_config)
+    _postprocess_data_arrays!(univ_data, config)
     return univ_data
 end;
