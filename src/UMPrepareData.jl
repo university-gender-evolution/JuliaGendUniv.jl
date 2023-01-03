@@ -33,6 +33,8 @@ function _set_department_summaries!(univ_data::GendUnivData, ::UM)
     univ_data._valid_dept_summary = df2
 end;
 
+
+
 function _get_departments!(univdata::GendUnivData, ::UM)
 
     # First filter by departments that start in the target year and have 
@@ -52,7 +54,20 @@ function _get_departments!(univdata::GendUnivData, dept_index::Integer, ::UM)
     univdata.department_names = dept_name
 end;
 
+function get_department_data(file_path::String, dept_name::String,
+                            config::AbstractGendUnivDataConfiguration)
 
+    univ_data = _load_univ_data(file_path, config)
+
+    if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
+        dept_data = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :]
+        dept_index = dept_data.groupindices[1] 
+    else
+        throw(DomainError(dept_name, "The provided department name does not match any existing record. 
+        Please make sure the name is specified exactly."))
+    end
+    return (dept_data, dept_index)
+end;
 # function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
 #     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
 #     univdata.department_names = unique(outdf.orgname)
@@ -228,4 +243,73 @@ function preprocess_data(file_path::String,
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
     return univ_data
+end;
+
+
+function _validation_checks_train_test_split(dept_data::DataFrame,
+                                            train_start_year::Integer,
+                                            train_nyears::Integer,
+                                            test_start_year::Integer,
+                                            test_nyears::Integer)
+    if train_start_year < test_start_year
+        true
+    else
+        throw(DomainError(dept_data.orgname[1]. "The test start year must 
+        come before the train start year."))
+    end
+
+    if (train_start_year + train_nyears) < dept_data.last_year[1] && train_start_year >= dept_data.first_year[1]
+        true
+    else
+        throw(DomainError(dept_data.orgname[1], "The provided training start_year and number of years falls outside of the 
+        range of the data. Either the start year falls before the first year of data, or the 
+        start year + number of training years falls beyond the last year of data."))
+    end
+
+    if (test_start_year + test_nyears) < dept_data.last_year[1] && test_start_year >= dept_data.first_year[1]
+        true
+    else
+        throw(DomainError(dept_data.orgname[1], "The provided testing start_year
+        and number of years falls outside of the 
+        range of the data. Either the start year falls before the first year of 
+        data, or the start year + number of testing years falls beyond the last 
+        year of data."))
+    end
+end;
+
+function preprocess_dept_train_test_split(file_path::String, 
+                                            dept_name::String,
+                                            start_year::Integer,
+                                            train_nyears::Integer,
+                                            test_nyears::Integer, 
+                                            config::AbstractGendUnivDataConfiguration; 
+                                            audit_config::AbstractDataChecks=NoAudit())
+
+
+    univ_data = _load_univ_data(file_path, config)
+
+    if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
+        dept_data = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :]
+        dept_index = dept_data.groupindices[1] 
+    else
+        throw(DomainError(dept_name, "The provided department name does not match any existing record. 
+        Please make sure the name is specified exactly."))
+    end
+
+
+    train_start_year = start_year
+    test_start_year = train_start_year + train_nyears
+    test_end_year = test_start_year + test_nyears      
+
+    _validation_checks_train_test_split(dept_data, train_start_year, 
+                                        train_nyears, test_start_year, 
+                                        test_nyears)
+
+    univ_data_train = preprocess_data(file_path, dept_index, train_start_year,
+                        train_nyears, config; audit_config)
+    
+    univ_data_test = preprocess_data(file_path, dept_index, test_start_year,
+                        test_nyears, config; audit_config)
+
+    return (univ_data_train, univ_data_test)
 end;
