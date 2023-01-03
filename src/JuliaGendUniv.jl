@@ -24,7 +24,8 @@ using ComponentArrays
 using Combinatorics
 
 include("PreprocessingTypes.jl");
-include("PrepareUMData.jl");
+include("UMPrepareData.jl");
+include("UMDepartmentProcessing.jl")
 
 
 export preprocess_data, UM, DataAudit, NoAudit
