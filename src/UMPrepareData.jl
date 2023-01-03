@@ -174,20 +174,41 @@ function preprocess_data(file_path::String,
     univ_data = _load_univ_data(file_path, config)
 
     if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
-        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices
+        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices[1]
     else
         throw(DomainError(dept_name, "The provided department name does not match any existing record. 
         Please make sure the name is specified exactly."))
     end
+
+    univ_data.first_year = start_year
+    univ_data.num_years = num_years
+    _get_departments!(univ_data, dept_index, config)
+    _process_each_dept!(univ_data, config, audit_config)
+    _postprocess_data_arrays!(univ_data, config)
+    return univ_data
 end;
 
 
 function preprocess_data(file_path::String, 
-                        dept_name::String,
+                        dept_index::Integer,
                         start_year::Integer,
                         num_years::Integer, 
                         config::AbstractGendUnivDataConfiguration; 
                         audit_config::AbstractDataChecks=NoAudit())
 
+    univ_data = _load_univ_data(file_path, config)
 
+    if dept_index ∈ univ_data._valid_dept_summary.groupindices
+
+    else
+        throw(DomainError(dept_name, "The provided department index does not match any existing record. 
+        Please make sure the index is specified correctly."))
+    end
+
+    univ_data.first_year = start_year
+    univ_data.num_years = num_years
+    _get_departments!(univ_data, dept_index, config)
+    _process_each_dept!(univ_data, config, audit_config)
+    _postprocess_data_arrays!(univ_data, config)
+    return univ_data
 end;
