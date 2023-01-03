@@ -17,7 +17,7 @@ using TestItems
 end
 
 
-@testitem "[JuliaGendUniv] prepare UM data No Audit" begin
+@testitem "[JuliaGendUniv] preprocess UM data No Audit" begin
     
     using JuliaGendUniv, Test
     
@@ -52,15 +52,34 @@ end
 end
 
 
+@testitem "[JuliaGendUniv] preprocess training/test split" begin
+    
+    using JuliaGendUniv, Test
+    
+    cd(@__DIR__)
+    @show pwd()
+
+    univ_data_train, univ_data_test = preprocess_dept_train_test_split("michigan1979to2009_wGender.dta",
+                                    "PEDIATRIC SURGERY SECTION", 1979, 10, 10, UM(); 
+                                    audit_config=NoAudit());
+
+    @test univ_data_train.num_years == 10
+    @test univ_data_test.num_years == 10
+    @test size(univ_data_train._valid_dept_summary) == (525, 5)
+    @test size(univ_data_test._valid_dept_summary) == (525, 5)
+end
+
 @testitem "[JuliaGendUniv] prepare UM data with Audit" begin
     using JuliaGendUniv, Test
 
     cd(@__DIR__)
     @show pwd()
 
-    t_preprocess_um_audit = preprocess_data("michigan1979to2009_wGender.dta", 
-        1979, 30, UM(); audit_config=DataAudit());
+    # t_preprocess_um_audit = preprocess_data("michigan1979to2009_wGender.dta", 
+    #     1979, 30, UM(); audit_config=DataAudit());
     
+    @test get_department_data("michigan1979to2009_wGender.dta", 
+                                "PEDIATRIC SURGERY SECTION", UM())[2] == 165 
     @test 1 + 1 == 2
 
 end
