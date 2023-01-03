@@ -24,7 +24,12 @@ function _set_department_summaries!(univ_data::GendUnivData, ::UM)
     df2 = combine(groupby(newdf, [:orgname]), :year => minimum => :first_year,
                                     :year => maximum => :last_year, 
                                     groupindices)
+
     df2[!, "nyears"] = df2.last_year .- df2.first_year .+ 1
+
+    df2[!, :first_year] = convert.(Int64, df2[!, :first_year])
+    df2[!, :last_year] = convert.(Int64, df2[!, :last_year])
+
     univ_data._valid_dept_summary = df2
 end;
 
@@ -32,18 +37,21 @@ function _get_departments!(univdata::GendUnivData, ::UM)
 
     # First filter by departments that start in the target year and have 
     # sufficient subsequent years
-    # //TODO fix nyears condition. If I start in a year other than the first_year,
-    # //TODO I still want to make sure I have sufficient years 
     df = subset(univdata._valid_dept_summary, 
                     :first_year => ByRow(==(univdata.first_year)), 
                     :nyears => ByRow(>=(univdata.num_years)))
-    # df = subset(univdata._valid_dept_summary, 
-    #                 :first_year => ByRow(<=(univdata.first_year)), 
-    #                 :first_year => f -> univdata._valid_dept_summary.last_year .- f .>= univdata._valid_dept_summary.nyears)
 
     univdata.processed_df = subset(univdata._raw_df, :orgname => x -> x .∈ [df.orgname])
     univdata.department_names = df.orgname
 end;
+
+
+function _get_departments!(univdata::GendUnivData, dept_index::Integer, ::UM)
+    dept_name =  univdata._valid_dept_summary[(univdata._valid_dept_summary.groupindices .== dept_index), :].orgname
+    univdata.processed_df = subset(univdata._raw_df, :orgname => ByRow(==(dept_name[1])))
+    univdata.department_names = dept_name
+end;
+
 
 # function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
 #     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
@@ -117,15 +125,15 @@ function preprocess_data(file_path::String,
     univ_data = _load_univ_data(file_path, config)
 
     if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
-        dept_index = univ_data[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices
+        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices[1]
     else
         throw(DomainError(dept_name, "The provided department name does not match any existing record. 
         Please make sure the name is specified exactly."))
     end
     
-    univ_data.first_year = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].first_year
-    univ_data.num_years = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].nyears
-    _get_departments!(univ_data, config)
+    univ_data.first_year = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].first_year[1]
+    univ_data.num_years = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].nyears[1]
+    _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
     return univ_data
@@ -133,23 +141,53 @@ end;
 
 
 function preprocess_data(file_path::String, 
-                        dept_index::Int, 
+                        dept_index::Integer, 
                         config::AbstractGendUnivDataConfiguration; 
                         audit_config::AbstractDataChecks=NoAudit())
 
     univ_data = _load_univ_data(file_path, config)
 
     if dept_index ∈ univ_data._valid_dept_summary.groupindices
-        pass
+
     else
         throw(DomainError(dept_name, "The provided department index does not match any existing record. 
         Please make sure the index is specified correctly."))
     end
-    
-    univ_data.first_year = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index)].first_year
-    univ_data.num_years = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index)].nyears
-    _get_departments!(univ_data, config)
+
+    univ_data.first_year = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].first_year[1]
+    univ_data.num_years = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].nyears[1]
+    _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
     return univ_data
+end;
+
+
+function preprocess_data(file_path::String, 
+                        dept_name::String,
+                        start_year::Integer,
+                        num_years::Integer, 
+                        config::AbstractGendUnivDataConfiguration; 
+                        audit_config::AbstractDataChecks=NoAudit())
+
+
+    univ_data = _load_univ_data(file_path, config)
+
+    if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
+        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices
+    else
+        throw(DomainError(dept_name, "The provided department name does not match any existing record. 
+        Please make sure the name is specified exactly."))
+    end
+end;
+
+
+function preprocess_data(file_path::String, 
+                        dept_name::String,
+                        start_year::Integer,
+                        num_years::Integer, 
+                        config::AbstractGendUnivDataConfiguration; 
+                        audit_config::AbstractDataChecks=NoAudit())
+
+
 end;
