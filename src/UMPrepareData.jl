@@ -174,10 +174,19 @@ function preprocess_data(file_path::String,
     univ_data = _load_univ_data(file_path, config)
 
     if any(occursin.(strip(dept_name), univ_data._valid_dept_summary.orgname))
-        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices[1]
+        dept_data = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :]
+        dept_index = dept_data.groupindices[1] 
     else
         throw(DomainError(dept_name, "The provided department name does not match any existing record. 
         Please make sure the name is specified exactly."))
+    end
+
+    if (start_year + num_years) < dept_data.last_year[1] && start_year >= dept_data.first_year[1]
+
+    else
+        throw(DomainError(dept_name, "The provided start_year and number of years falls outside of the 
+        range of the data. Either the start year falls before the first year of data, or the 
+        start year + number of years falls beyond the last year of data."))
     end
 
     univ_data.first_year = start_year
@@ -199,10 +208,18 @@ function preprocess_data(file_path::String,
     univ_data = _load_univ_data(file_path, config)
 
     if dept_index ∈ univ_data._valid_dept_summary.groupindices
+        dept_data = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :]
+    else
+        throw(DomainError(dept_data.orgname, "The provided department index does not match any existing record. 
+        Please make sure the index is specified correctly."))
+    end
+
+    if (start_year + num_years) < dept_data.last_year[1] && start_year >= dept_data.first_year[1]
 
     else
-        throw(DomainError(dept_name, "The provided department index does not match any existing record. 
-        Please make sure the index is specified correctly."))
+        throw(DomainError(dept_data.orgname, "The provided start_year and number of years falls outside of the 
+        range of the data. Either the start year falls before the first year of data, or the 
+        start year + number of years falls beyond the last year of data."))
     end
 
     univ_data.first_year = start_year
