@@ -24,12 +24,13 @@ using ComponentArrays
 using Combinatorics
 
 include("PreprocessingTypes.jl");
+include("OptimizationTypes.jl");
 include("UMPrepareData.jl");
 include("UMDepartmentProcessing.jl")
-
+include("OptimizeDept.jl")
 
 export preprocess_data, UM, DataAudit, NoAudit, preprocess_dept_train_test_split,
-        get_department_data
+        get_department_data, optimize_model
 
 
 
