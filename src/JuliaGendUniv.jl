@@ -18,8 +18,6 @@ using Zygote
 using KernelDensity
 using PDFmerger
 using Dates
-using Optimization
-using DiffEqFlux
 using ComponentArrays
 using Combinatorics
 
