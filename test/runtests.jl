@@ -14,6 +14,7 @@ using TestItems
     @test UM() isa JuliaGendUniv.AbstractGendUnivDataConfiguration 
     @test DataAudit() isa JuliaGendUniv.AbstractDataChecks
     @test NoAudit() isa JuliaGendUniv.AbstractDataChecks
+    
 end
 
 
@@ -84,11 +85,4 @@ end
 
 end
 
-
-@testitem "[JuliaGendUniv] optimization module" begin
-    using JuliaGendUniv, Test
-
-    @test 1 + 1 == 2
-
-end
 

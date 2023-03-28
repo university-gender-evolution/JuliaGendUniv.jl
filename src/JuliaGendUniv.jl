@@ -18,15 +18,12 @@ using Zygote
 using KernelDensity
 using PDFmerger
 using Dates
-using Optimization
-using DiffEqFlux
 using ComponentArrays
 using Combinatorics
 
 include("PreprocessingTypes.jl");
 include("UMPrepareData.jl");
 include("UMDepartmentProcessing.jl")
-
 
 export preprocess_data, UM, DataAudit, NoAudit, preprocess_dept_train_test_split,
         get_department_data
