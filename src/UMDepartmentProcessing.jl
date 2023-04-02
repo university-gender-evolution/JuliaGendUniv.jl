@@ -147,7 +147,8 @@ function _process_department_numbers!(umdata::UMDeptData, ::DataAudit)
 end;
 
 
-function _process_department_hires_attr_promotion!(umdata::UMDeptData, audit_config::AbstractDataChecks)
+function _process_department_hires_attr_promotion!(umdata::UMDeptData, 
+                                audit_config::JuliaGendUniv_Types.AbstractDataChecks)
 
     ## setup the hires
     for idx in umdata._prof_ids
@@ -749,7 +750,7 @@ function _finalize_audit(umdata::UMDeptData, ::DataAudit)
 
 end;
 
-function preprocess_um_data(df::DataFrame, first_year::Integer, num_years::Integer, audit_config::AbstractDataChecks)
+function preprocess_um_data(df::DataFrame, first_year::Integer, num_years::Integer, audit_config::JuliaGendUniv_Types.AbstractDataChecks)
     um_data = _setup_um_preprocessing(df, first_year, num_years, audit_config)
     _process_department_numbers!(um_data, audit_config)
     _process_department_hires_attr_promotion!(um_data, audit_config)

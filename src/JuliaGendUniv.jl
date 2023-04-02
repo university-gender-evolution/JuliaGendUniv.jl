@@ -20,12 +20,13 @@ using PDFmerger
 using Dates
 using ComponentArrays
 using Combinatorics
+using JuliaGendUniv_Types
 
-include("PreprocessingTypes.jl");
+#include("PreprocessingTypes.jl");
 include("UMPrepareData.jl");
 include("UMDepartmentProcessing.jl")
 
-export preprocess_data, UM, DataAudit, NoAudit, preprocess_dept_train_test_split,
+export preprocess_data, preprocess_dept_train_test_split,
         get_department_data
 
 

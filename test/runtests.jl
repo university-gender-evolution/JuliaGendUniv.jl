@@ -5,15 +5,15 @@ using TestItems
 
 @testitem "[JuliaGendUniv] environment setup" begin
 
-    using JuliaGendUniv, Test
+    using JuliaGendUniv_Types, Test
 
     cd(@__DIR__)
     @show pwd()
     
     @test isfile("michigan1979to2009_wGender.dta")
-    @test UM() isa JuliaGendUniv.AbstractGendUnivDataConfiguration 
-    @test DataAudit() isa JuliaGendUniv.AbstractDataChecks
-    @test NoAudit() isa JuliaGendUniv.AbstractDataChecks
+    @test UM() isa JuliaGendUniv_Types.AbstractGendUnivDataConfiguration 
+    @test DataAudit() isa JuliaGendUniv_Types.AbstractDataChecks
+    @test NoAudit() isa JuliaGendUniv_Types.AbstractDataChecks
     
 end
 
@@ -41,7 +41,7 @@ end
     t_preprocess_um_deptindex_year = preprocess_data("michigan1979to2009_wGender.dta", 
                                 165, 1985, 20, UM(); audit_config=NoAudit());
 
-    @test t_preprocess_um_noaudit isa JuliaGendUniv.UMData
+    @test t_preprocess_um_noaudit isa JuliaGendUniv_Types.UMData
     @test t_preprocess_um_noaudit.num_years == 30
     @test size(t_preprocess_um_noaudit._valid_dept_summary) == (525, 5)
     @test length(t_preprocess_um_noaudit.department_names) == 73
@@ -81,7 +81,6 @@ end
     
     @test get_department_data("michigan1979to2009_wGender.dta", 
                                 "PEDIATRIC SURGERY SECTION", UM())[2] == 165 
-    @test 1 + 1 == 2
 
 end
 
