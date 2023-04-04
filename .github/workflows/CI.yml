@@ -48,6 +48,8 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: Install JuliaGendUniv_Types private repo
+        run: julia --project -e 'using Pkg; Pkg.develop(; url="git@github.com:university-gender-evolution/JuliaGendUniv_Types.jl.git")'
       - name: Build JuliaGendUniv package
         uses: julia-actions/julia-buildpkg@v1
       - name: Download UM datafile for testing
