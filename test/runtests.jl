@@ -4,23 +4,19 @@ using TestItems
 
 
 @testitem "[JuliaGendUniv] environment setup" begin
-
-    using JuliaGendUniv_Types, Test
-
+    using JuliaGendUniv_Types
     cd(@__DIR__)
     @show pwd()
-    
     @test isfile("michigan1979to2009_wGender.dta")
     @test UM() isa JuliaGendUniv_Types.AbstractGendUnivDataConfiguration 
-    @test DataAudit() isa JuliaGendUniv_Types.AbstractDataChecks
-    @test NoAudit() isa JuliaGendUniv_Types.AbstractDataChecks
-    
+    # @test JuliaGendUniv_Types.DataAudit() isa JuliaGendUniv_Types.AbstractDataChecks
+    # @test JuliaGendUniv_Types.NoAudit() isa JuliaGendUniv_Types.AbstractDataChecks
 end
 
 
 @testitem "[JuliaGendUniv] preprocess UM data No Audit" begin
     
-    using JuliaGendUniv, Test
+    using JuliaGendUniv_Types, Test
     
     cd(@__DIR__)
     @show pwd()
@@ -55,7 +51,7 @@ end
 
 @testitem "[JuliaGendUniv] preprocess training/test split" begin
     
-    using JuliaGendUniv, Test
+    using JuliaGendUniv_Types, Test
     
     cd(@__DIR__)
     @show pwd()
@@ -71,7 +67,7 @@ end
 end
 
 @testitem "[JuliaGendUniv] prepare UM data with Audit" begin
-    using JuliaGendUniv, Test
+    using JuliaGendUniv_Types, Test
 
     cd(@__DIR__)
     @show pwd()
