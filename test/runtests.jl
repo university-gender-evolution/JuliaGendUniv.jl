@@ -9,8 +9,8 @@ using TestItems
     @show pwd()
     @test isfile("michigan1979to2009_wGender.dta")
     @test UM() isa JuliaGendUniv_Types.AbstractGendUnivDataConfiguration 
-    # @test JuliaGendUniv_Types.DataAudit() isa JuliaGendUniv_Types.AbstractDataChecks
-    # @test JuliaGendUniv_Types.NoAudit() isa JuliaGendUniv_Types.AbstractDataChecks
+    @test DataAudit() isa JuliaGendUniv_Types.AbstractDataChecks
+    @test NoAudit() isa JuliaGendUniv_Types.AbstractDataChecks
 end
 
 
