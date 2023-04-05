@@ -25,6 +25,10 @@ jobs:
       - name: Install curl package
         run: |
           sudo apt-get install -y curl python3-pycurl libcurl4-openssl-dev
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+            ssh-private-key: |
+                  ${{secrets.SSH_PRIVATE_KEY_JGENDUNIV}}
       - name: Download and install R packages - readr
         run: | 
           R -e 'install.packages("readr")'
@@ -49,7 +53,7 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - name: Install JuliaGendUniv_Types private repo
-        run: julia --project -e 'using Pkg; Pkg.develop(; url="https://github.com/university-gender-evolution/JuliaGendUniv_Types.jl.git")'
+        run: julia --project -e 'using Pkg; Pkg.develop(; url="git@github.com:university-gender-evolution/JuliaGendUniv_Types.jl.git")'
       - name: Build JuliaGendUniv package
         uses: julia-actions/julia-buildpkg@v1
       - name: Download UM datafile for testing
