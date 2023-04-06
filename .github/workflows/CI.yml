@@ -30,7 +30,8 @@ jobs:
           export JULIA_PKG_USE_CLI_GIT=true
       - name: Add Github to known_hosts file
         run: |
-          touch ~/.ssh/known_hosts
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-keygen -R github.com
           curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
       - uses: webfactory/ssh-agent@v0.8.0
         with:
