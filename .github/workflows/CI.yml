@@ -28,10 +28,10 @@ jobs:
       - name: Install Github CLI environment variable for Julia
         run: |
           export JULIA_PKG_USE_CLI_GIT=true
-      - uses: webfactory/ssh-agent@v0.5.4
+      - uses: webfactory/ssh-agent@v0.8.0
         with:
             ssh-private-key: |
-                  ${{secrets.SSH_PRIVATE_KEY_JGENDUNIV}}
+                  ${{ secrets.SSH_PRIVATE_KEY_JULIAGENDUNIV }}
       - name: Download and install R packages - readr
         run: | 
           R -e 'install.packages("readr")'
