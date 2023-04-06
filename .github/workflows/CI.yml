@@ -25,6 +25,9 @@ jobs:
       - name: Install curl package
         run: |
           sudo apt-get install -y curl python3-pycurl libcurl4-openssl-dev
+      - name: Install Github CLI environment variable for Julia
+        run: |
+          export JULIA_PKG_USE_CLI_GIT=true
       - uses: webfactory/ssh-agent@v0.5.4
         with:
             ssh-private-key: |
