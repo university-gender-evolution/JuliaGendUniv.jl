@@ -33,7 +33,7 @@ jobs:
           mkdir -p ~/.ssh
           touch ~/.ssh/known_hosts
           curl -L https://api.github.com/meta | jq -r '.ssh_keys | .[]' | sed -e 's/^/github.com /' >> ~/.ssh/known_hosts
-      - uses: webfactory/ssh-agent@v0.8.0
+      - uses: webfactory/ssh-agent@v0.7.0
         with:
             ssh-private-key: |
                   ${{ secrets.SSH_PRIVATE_KEY_JULIAGENDUNIV }}
