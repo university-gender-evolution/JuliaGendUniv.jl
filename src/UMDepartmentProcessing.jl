@@ -49,7 +49,8 @@ function _setup_um_preprocessing(df::DataFrame,
                 :act_mattr2, :act_mattr3, :act_fprom1, :act_fprom2, :act_mprom1, 
                 :act_mprom2, :act_deptn, :act_hire, :act_f, :act_m, :act_fpct,
                 :act_mpct, :act_deptname, :act_normf1, :act_normf2, :act_normf3,
-                :act_normm1, :act_normm2, :act_normm3]
+                :act_normm1, :act_normm2, :act_normm3, :act_norm_f, :act_norm_m, 
+                :act_norm_deptn]
 
     audit_columns = [:aud_f1, :aud_f2, :aud_f3,  :aud_m1, :aud_m2, :aud_m3, 
                     :aud_fhire1, :aud_fhire2, :aud_fhire3, :aud_mhire1, 
@@ -313,6 +314,9 @@ function _process_summary_data!(umdata::UMDeptData)
     umdata.processed_data[!, [:act_normm1]] .= umdata.processed_data.act_m1/max_deptn
     umdata.processed_data[!, [:act_normm2]] .= umdata.processed_data.act_m2/max_deptn
     umdata.processed_data[!, [:act_normm3]] .= umdata.processed_data.act_m3/max_deptn
+    umdata.processed_data[!, [:act_norm_deptn]] .= umdata.processed_data.act_deptn/max_deptn
+    umdata.processed_data[!, [:act_norm_f]] .= umdata.processed_data.act_f/max_deptn
+    umdata.processed_data[!, [:act_norm_m]] .= umdata.processed_data.act_m/max_deptn
 end;
 
 
@@ -453,6 +457,12 @@ function _process_bootstrap_data!(umdata::UMDeptData)
     temp_df[!, [:boot_norm_m1]] .= temp_df.boot_m1/max_deptn
     temp_df[!, [:boot_norm_m2]] .= temp_df.boot_m2/max_deptn
     temp_df[!, [:boot_norm_m3]] .= temp_df.boot_m3/max_deptn
+    temp_df[!, [:boot_norm_deptn]] .= temp_df.boot_deptn/max_deptn
+    temp_df[!, [:boot_norm_m]] .= temp_df.boot_m/max_deptn
+    temp_df[!, [:boot_norm_f]] .= temp_df.boot_f/max_deptn
+
+
+
 
     umdata._u0[!, [:u0_act_bootnorm]] .= umdata._u0.u0_act_unnormalized/max_deptn
     umdata._u0[:, :u0_boot_bootnorm] = vec(Array(temp_df[1, [:boot_norm_f1, 
@@ -518,6 +528,9 @@ function _process_spline_data!(umdata::UMDeptData)
     temp_df[!, [:spline_norm_m1]] .= temp_df.spline_m1/max_deptn
     temp_df[!, [:spline_norm_m2]] .= temp_df.spline_m2/max_deptn
     temp_df[!, [:spline_norm_m3]] .= temp_df.spline_m3/max_deptn
+    temp_df[!, [:spline_norm_deptn]] .= temp_df.spline_deptn/max_deptn
+    temp_df[!, [:spline_norm_m]] .= temp_df.spline_m/max_deptn
+    temp_df[!, [:spline_norm_f]] .= temp_df.spline_f/max_deptn
     umdata.bootstrap_df = hcat(umdata.bootstrap_df, temp_df)
 
 
