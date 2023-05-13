@@ -43,7 +43,7 @@ end
     @test length(t_preprocess_um_noaudit.department_names) == 73
     @test t_preprocess_um_deptname.department_names[1] == "PEDIATRIC SURGERY SECTION"
     @test t_preprocess_um_deptindex.department_names[1] == "PEDIATRIC SURGERY SECTION"
-    @test size(t_preprocess_um_deptname_year.processed_df) == (21, 36)
+    @test size(t_preprocess_um_deptname_year.processed_df) == (21, 39)
     @test minimum(t_preprocess_um_deptindex_year.processed_df.year) == t_preprocess_um_deptindex_year.first_year
     @test_throws DomainError preprocess_data("michigan1979to2009_wGender.dta", 165, 1985, 50, UM(); audit_config=NoAudit())
 end
