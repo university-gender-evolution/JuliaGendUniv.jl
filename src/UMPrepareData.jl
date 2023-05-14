@@ -68,35 +68,21 @@ function get_department_data(file_path::String, dept_name::String,
     end
     return (dept_data, dept_index)
 end;
-# function _get_departments_with_target_start_year!(univdata::GendUnivData, ::UM)
-#     outdf = subset(univdata._raw_df, :year => ByRow(==(univdata.first_year)))
-#     univdata.department_names = unique(outdf.orgname)
-#     univdata.processed_df = @rsubset(univdata._raw_df, :orgname ∈ univdata.department_names)
-# end;
 
 
-# function _get_departments_with_professors!(univdata::GendUnivData, ::UM)
-#     univdata.processed_df = filter(:jobdes => contains("PROF"), univdata.processed_df)
-#     univdata.department_names = unique(univdata.processed_df.orgname)
-# end;
-
-
-# function _get_departments_with_sufficient_years!(univdata::GendUnivData, ::UM)
-#     outdf = unique(univdata.processed_df, [:orgname, :year])
-#     gdf = groupby(outdf, [:orgname])
-#     cdf = combine(gdf, nrow )
-#     res = filter(:nrow => >=(univdata.num_years), cdf)
-#     univdata.processed_df = subset(univdata.processed_df, :orgname => x -> x .∈ [res.orgname])
-#     univdata.department_names = res.orgname
-# end;
 
 function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, audit_config)    
     for (index, value) in enumerate(univdata.department_names)
         input = filter(:orgname => contains(value), univdata.processed_df)
         res = preprocess_um_data(input, univdata.first_year, univdata.num_years, audit_config)
-        push!(univdata.dept_data_vector, res)
-        @show value
-        @show nrow(res.processed_data)
+        if describe(res.processed_data[:, [:act_deptn]], :mean)[1,2] == 0.0
+            println("dept data empty: $value")
+            continue
+        else            
+            push!(univdata.dept_data_vector, res)
+            println("department added: $value")
+            #@show nrow(res.processed_data)
+        end
     end
 end;
 
@@ -123,9 +109,6 @@ function preprocess_data(file_path::String,
     univ_data.first_year = first_year
     univ_data.num_years = num_years
     _get_departments!(univ_data, config)
-    #_get_departments_with_target_start_year!(univ_data, config)
-    #_get_departments_with_professors!(univ_data, config)
-    #_get_departments_with_sufficient_years!(univ_data, config) 
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
     return univ_data
