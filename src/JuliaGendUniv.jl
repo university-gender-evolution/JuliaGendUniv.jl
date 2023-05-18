@@ -24,7 +24,8 @@ using JuliaGendUniv_Types
 
 #include("PreprocessingTypes.jl");
 include("UMPrepareData.jl");
-include("UMDepartmentProcessing.jl")
+include("ClusterProcessing.jl");
+include("UMDepartmentProcessing.jl");
 
 export preprocess_data, preprocess_dept_train_test_split,
         get_department_data

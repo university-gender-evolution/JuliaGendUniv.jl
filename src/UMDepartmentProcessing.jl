@@ -369,17 +369,7 @@ function _process_parameter_data!(umdata::UMDeptData)
                         :rpromm2 => ifelse(isnan(first(rpromm2)), 0.001, round(first(rpromm2), digits=4)))
 end;
 
-function _process_clusterpoint_vector!(umdata::UMDeptData)
-    # stack data for clustering                         
-    cluster_pt = vcat(umdata.processed_data.act_normf1, 
-                        umdata.processed_data.act_normf2, 
-                        umdata.processed_data.act_normf3, 
-                        umdata.processed_data.act_normm1, 
-                        umdata.processed_data.act_normm2, 
-                        umdata.processed_data.act_normm3)
-    cluster_pt .= ifelse.(isnan.(cluster_pt), 0, cluster_pt)
-    umdata.cluster_vector = cluster_pt
-end;
+
 
 function _process_sindy_matrix!(umdata::UMDeptData)
 
@@ -800,6 +790,7 @@ function preprocess_um_data(df::DataFrame, first_year::Integer, num_years::Integ
     _process_sindy_matrix!(um_data)
     _process_bootstrap_data!(um_data)
     _process_spline_data!(um_data)
+    _process_cluster_vectors!(um_data)
     # _optimization_dde(um_data, audit_config)
     # _finalize_audit(um_data, audit_config) 
     return um_data
