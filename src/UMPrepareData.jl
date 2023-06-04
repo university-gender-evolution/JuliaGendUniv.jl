@@ -97,6 +97,7 @@ function _postprocess_data_arrays!(univdata::JuliaGendUniv_Types.GendUnivData, :
     univdata.univ_sindy_matrix = reduce(hcat, t3)
     univdata.univ_bootstrap_df = reduce(vcat, t4)
     aggregate_cluster_vectors_to_matrix(univdata)
+    _process_clustering_analysis!(univdata)    
 end;
 
 
