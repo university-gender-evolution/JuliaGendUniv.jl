@@ -71,7 +71,8 @@ end;
 
 
 
-function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, audit_config)    
+function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, audit_config)   
+    new_dept_names = []
     for (index, value) in enumerate(univdata.department_names)
         input = filter(:orgname => contains(value), univdata.processed_df)
         res = preprocess_um_data(input, univdata.first_year, univdata.num_years, audit_config)
@@ -81,9 +82,11 @@ function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, a
         else            
             push!(univdata.dept_data_vector, res)
             println("department added: $value")
+            push!(new_dept_names, value)
             #@show nrow(res.processed_data)
         end
     end
+    univdata.department_names = new_dept_names
 end;
 
 function _postprocess_data_arrays!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM)

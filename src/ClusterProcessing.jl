@@ -210,6 +210,8 @@ function fit_kmeans!(clgroup)
     clgroup.kmeans.weighted_cluster_sizes = km.wcounts
     clgroup.kmeans.assignments = km.assignments
     clgroup.kmeans.centers = km.centers
+    clgroup.kmeans.dict["pca_model"]= MultivariateStats.fit(PCA, clgroup.raw_matrix; maxoutdim=3)
+    clgroup.kmeans._graph["plt"] = _make_cluster_plot_pca(datamatrix, km, "Kmeans Clustering")
 end;
 
 
@@ -220,6 +222,8 @@ function fit_kmedoids!(clgroup)
     clgroup.kmedoids.assignments = km.assignments
     med = Float64.(km.medoids)
     clgroup.kmedoids.centers = reshape(med, length(med), 1)
+    clgroup.kmedoids._graph = _make_cluster_plot_pca(datamatrix, km, "Kmedoids Clustering")
+
 
 end;
 
@@ -249,6 +253,20 @@ function fit_affinityprop!(clgroup)
     clgroup.affinity_propagation.assignments = res.assignments
 
 end;
+
+function _make_cluster_plot_pca(datamatrix, clustering_data, plot_title)
+    a = assignments(clustering_data)
+    datamatrix = map(x -> x + 0.5*rand(), datamatrix)
+
+    p = scatter(datamatrix[1, :], datamatrix[2,:], datamatrix[3, :], 
+        markersize=6,
+        markercolor=a, 
+        palette=:seaborn_colorblind, 
+        title = plot_title)
+    return Dict("plt0_0" => p)
+end
+
+
 
 function _process_clustering_analysis!(univdata::JuliaGendUniv_Types.GendUnivData)
 
