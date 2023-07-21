@@ -46,6 +46,9 @@ jobs:
       - name: Download and install R packages - data.table
         run: | 
           R -e 'install.packages("data.table")'
+      - name: Download and install R packages - NbClust
+        run: | 
+          R -e 'install.packages("NbClust")'
       - name: Install Julia language
         uses: julia-actions/setup-julia@v1
         with:
