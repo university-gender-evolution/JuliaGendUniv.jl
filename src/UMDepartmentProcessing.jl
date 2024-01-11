@@ -30,7 +30,7 @@ function _setup_um_preprocessing(df::DataFrame,
     umdata._first_year = minimum(years_range)
     umdata.dept_name = first(df.orgname)
     umdata.smoothing_spline_nknots = length(years_range)
-    umdata.smoothing_spline_spar = 0.5
+    umdata.smoothing_spline_spar = 0.7
     return umdata
 
 end;
@@ -512,12 +512,17 @@ function _process_spline_data!(umdata::UMDeptData)
     temp_df = DataFrame(zeros(num_rows, length(total_cols)), total_cols)
     for (i, c) in enumerate(cols)
         # compute spline
+
         t1 = _compute_smoothing_spline(convert(Vector{Float64}, umdata.processed_data.year),
                                         convert(Vector{Float64}, umdata.processed_data[:, c]),
                                         spar=umdata.smoothing_spline_spar)
+        
         temp_df[:, [spcols[i]]] .= t1
         temp_df[:, [spcols[i]]] .= ifelse.(temp_df[:, [spcols[i]]] .< 0.0, 0.0, temp_df[:, [spcols[i]]])
-
+        #@show c
+        # if c == :act_fhire1
+        #     @show temp_df[:, [spcols[i]]]
+        # end
         # compute derivative at each point.
         xs = convert(Vector{Float64}, sort(umdata.processed_data.year))
         itp = interpolate(t1, BSpline(Cubic(Line(OnCell()))))

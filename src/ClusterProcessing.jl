@@ -185,10 +185,18 @@ function fit_optimal_clusters!(clgroup)
         nbclust2 = R"""
             library(NbClust)            
             pdf(file = NULL)
+
+            hush=function(code){
+                sink("/dev/null") # use /dev/null in UNIX
+                tmp = code
+                sink()
+                return(tmp)
+                }
+
             d = t($datamatrix)
-            res = NbClust(data=d, distance = "euclidean",
+            res = hush(NbClust(data=d, distance = "euclidean",
                     min.nc = 2, max.nc = 10, 
-                    method = "complete", index ="all");
+                    method = "complete", index ="all"));
             dev.off()
             res
             """;
