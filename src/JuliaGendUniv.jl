@@ -20,10 +20,11 @@ using PDFmerger
 using Dates
 using ComponentArrays
 using Combinatorics
-using Logging
+using Logging, LoggingExtras
 using JuliaGendUniv_Types
 
-#include("PreprocessingTypes.jl");
+
+
 include("UMPrepareData.jl");
 include("ClusterProcessing.jl");
 include("UMDepartmentProcessing.jl");

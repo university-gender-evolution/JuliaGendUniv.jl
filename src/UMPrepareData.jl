@@ -1,5 +1,4 @@
 
-
 function _load_univ_data(file_path::String, config::JuliaGendUniv_Types.AbstractGendUnivDataConfiguration)
     dstructure = _setup_data(file_path, config)
     return dstructure
@@ -77,13 +76,13 @@ function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, a
         input = filter(:orgname => contains(value), univdata.processed_df)
         res = preprocess_um_data(input, univdata.first_year, univdata.num_years, audit_config)
         if describe(res.processed_data[:, [:act_deptn]], :mean)[1,2] == 0.0
-            println("dept data empty: $value")
+            @info("dept data empty:  $value")
             continue
         else            
             push!(univdata.dept_data_vector, res)
-            println("department added: $value")
+            @info("department added: $value")
             push!(new_dept_names, value)
-            #@show nrow(res.processed_data)
+            @debug("rows processed: $(nrow(res.processed_data))")
         end
     end
     univdata.department_names = new_dept_names
@@ -110,12 +109,26 @@ function preprocess_data(file_path::String,
                         config::JuliaGendUniv_Types.AbstractGendUnivDataConfiguration; 
                         audit_config::JuliaGendUniv_Types.AbstractDataChecks=NoAudit())
 
+    logger = TeeLogger(
+            ConsoleLogger(stderr),
+            FormatLogger(open("logfile.txt", "w")) do io, args
+            # Write the module, level and message only
+                println(io, args._module, " | ", "[", args.level, "] ", args.message)
+            end )
+    
+    global_logger(logger)
+
+    @debug "logging initiated."
+
     univ_data = _load_univ_data(file_path, config)
     univ_data.first_year = first_year
     univ_data.num_years = num_years
     _get_departments!(univ_data, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
+
+    @debug "Closing the log"
+    
     return univ_data
 end;
 
@@ -139,6 +152,7 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
+    _end_logging(io)
     return univ_data
 end;
 
@@ -162,6 +176,7 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
+    _end_logging(io)
     return univ_data
 end;
 
@@ -197,6 +212,7 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
+    _end_logging(io)
     return univ_data
 end;
 
@@ -230,6 +246,7 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
+    _end_logging(io)
     return univ_data
 end;
 
@@ -299,5 +316,6 @@ function preprocess_dept_train_test_split(file_path::String,
     univ_data_test = preprocess_data(file_path, dept_index, test_start_year,
                         test_nyears, config; audit_config)
 
+    _end_logging(io)
     return (univ_data_train, univ_data_test)
 end;
