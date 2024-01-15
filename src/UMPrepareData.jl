@@ -82,7 +82,7 @@ function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, a
             push!(univdata.dept_data_vector, res)
             @info("department added: $value")
             push!(new_dept_names, value)
-            #@show nrow(res.processed_data)
+            @debug("rows processed: $(nrow(res.processed_data))")
         end
     end
     univdata.department_names = new_dept_names
