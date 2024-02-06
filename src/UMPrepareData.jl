@@ -29,6 +29,7 @@ function _set_department_summaries!(univ_data::JuliaGendUniv_Types.GendUnivData,
     df2[!, :first_year] = convert.(Int64, df2[!, :first_year])
     df2[!, :last_year] = convert.(Int64, df2[!, :last_year])
 
+    df2 = filter(:nyears => x-> x > 3, df2)
     univ_data._valid_dept_summary = df2
 end;
 
@@ -102,6 +103,23 @@ function _postprocess_data_arrays!(univdata::JuliaGendUniv_Types.GendUnivData, :
     _process_clustering_analysis!(univdata)    
 end;
 
+function _postprocess_data_arrays_all_depts!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM)
+
+    t1 = univdata.dept_data_vector[1].processed_data
+    #t2 = [univdata.dept_data_vector[i].cluster_vector[1:univdata.num_years*6] for i in 1:length(univdata.dept_data_vector)]
+    @debug("length of sindy matrix: $(size(univdata.dept_data_vector[1].sindy_matrix))")
+    @debug("size I am trying to access: $(1:univdata.num_years)")
+    t3 = univdata.dept_data_vector[1].sindy_matrix
+    t4 = univdata.dept_data_vector[1].bootstrap_df
+    univdata.processed_df = t1
+    #univdata.univ_cluster_matrix = reduce(hcat, t2)
+    univdata.univ_sindy_matrix = t3
+    univdata.univ_bootstrap_df = t4
+    #aggregate_cluster_vectors_to_matrix(univdata)
+    #_process_clustering_analysis!(univdata)    
+end;
+
+
 
 function preprocess_data(file_path::String, 
                         first_year::Integer, 
@@ -152,7 +170,6 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
-    _end_logging(io)
     return univ_data
 end;
 
@@ -176,7 +193,6 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
-    _end_logging(io)
     return univ_data
 end;
 
@@ -212,7 +228,6 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
-    _end_logging(io)
     return univ_data
 end;
 
@@ -246,9 +261,77 @@ function preprocess_data(file_path::String,
     _get_departments!(univ_data, dept_index, config)
     _process_each_dept!(univ_data, config, audit_config)
     _postprocess_data_arrays!(univ_data, config)
-    _end_logging(io)
     return univ_data
 end;
+
+
+function preprocess_data(univ_data::JuliaGendUniv_Types.GendUnivData, 
+                        config::JuliaGendUniv_Types.AbstractGendUnivDataConfiguration; 
+                        audit_config::JuliaGendUniv_Types.AbstractDataChecks=NoAudit())
+
+
+
+    logger = TeeLogger(
+            ConsoleLogger(stderr),
+            FormatLogger(open("logfile_generate_all_depts.txt", "w")) do io, args
+            # Write the module, level and message only
+                println(io, args._module, " | ", "[", args.level, "] ", args.message)
+            end )
+    
+    global_logger(logger)
+
+    @debug "logging initiated."
+
+    combined_df = DataFrame()
+
+    for (i, dept_name) in enumerate(univ_data._valid_dept_summary.orgname)
+
+        dept_index = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.orgname .== dept_name), :].groupindices[1]
+        @debug("loading department: $(dept_name).")
+        univ_data.first_year = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].first_year[1]
+        univ_data.num_years = univ_data._valid_dept_summary[(univ_data._valid_dept_summary.groupindices .== dept_index), :].nyears[1]
+        _get_departments!(univ_data, dept_index, config)
+        _process_each_dept!(univ_data, config, audit_config)
+        _postprocess_data_arrays_all_depts!(univ_data, config)
+        if isempty(combined_df)
+            combined_df = hcat(univ_data.dept_data_vector[1].processed_data, 
+                            univ_data.dept_data_vector[1].bootstrap_df,
+                            makeunique=true)
+        else
+            @debug("size of processed data: $(size(univ_data.dept_data_vector[1].processed_data))")
+            @debug("size of bootstrap data: $(size(univ_data.dept_data_vector[1].bootstrap_df))")
+
+            tdf = hcat(univ_data.dept_data_vector[1].processed_data, 
+                        univ_data.dept_data_vector[1].bootstrap_df,
+                        makeunique=true)
+            append!(combined_df, tdf, promote=true)
+        end
+    end
+    CSV.write("test_all_depts.csv", combined_df)    
+    @debug("Writing data to csv.")
+    
+    return univ_data
+
+
+
+
+
+end
+
+
+
+function preprocess_data(file_path::String, 
+                        config::JuliaGendUniv_Types.AbstractGendUnivDataConfiguration; 
+                        audit_config::JuliaGendUniv_Types.AbstractDataChecks=NoAudit())
+
+
+    univ_data = _load_univ_data(file_path, config)
+    preprocess_data(univ_data, config; audit_config=audit_config)
+
+
+end
+
+
 
 
 function _validation_checks_train_test_split(dept_data::DataFrame,
@@ -316,6 +399,5 @@ function preprocess_dept_train_test_split(file_path::String,
     univ_data_test = preprocess_data(file_path, dept_index, test_start_year,
                         test_nyears, config; audit_config)
 
-    _end_logging(io)
     return (univ_data_train, univ_data_test)
 end;
