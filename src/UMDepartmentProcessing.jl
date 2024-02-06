@@ -512,7 +512,9 @@ function _process_spline_data!(umdata::UMDeptData)
     temp_df = DataFrame(zeros(num_rows, length(total_cols)), total_cols)
     for (i, c) in enumerate(cols)
         # compute spline
-
+        if umdata.dept_name == "FLINT SOM GRAD AD/DEV"
+            @debug("data vector: $(umdata.processed_data[:, c])")
+        end
         t1 = _compute_smoothing_spline(convert(Vector{Float64}, umdata.processed_data.year),
                                         convert(Vector{Float64}, umdata.processed_data[:, c]),
                                         spar=umdata.smoothing_spline_spar)
@@ -795,7 +797,7 @@ function preprocess_um_data(df::DataFrame, first_year::Integer, num_years::Integ
     _process_sindy_matrix!(um_data)
     _process_bootstrap_data!(um_data)
     _process_spline_data!(um_data)
-    _process_cluster_vectors!(um_data)
+    #_process_cluster_vectors!(um_data)
     # _optimization_dde(um_data, audit_config)
     # _finalize_audit(um_data, audit_config) 
     return um_data
