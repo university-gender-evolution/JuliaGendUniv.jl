@@ -17,7 +17,9 @@ end;
 
 function _set_department_summaries!(univ_data::JuliaGendUniv_Types.GendUnivData, ::UM)
 
+    _validation_adjust_depts(univ_data)
     depts_prof = subset(univ_data._raw_df, :jobdes => ByRow(contains("PROF")))
+    
     dept_prof_unique = unique(depts_prof.orgname)
     newdf = @rsubset(univ_data._raw_df, :orgname ∈ dept_prof_unique)
     df2 = combine(groupby(newdf, [:orgname]), :year => minimum => :first_year,
@@ -51,6 +53,7 @@ end;
 function _get_departments!(univdata::JuliaGendUniv_Types.GendUnivData, dept_index::Integer, ::UM)
     dept_name =  univdata._valid_dept_summary[(univdata._valid_dept_summary.groupindices .== dept_index), :].orgname
     univdata.processed_df = subset(univdata._raw_df, :orgname => ByRow(==(dept_name[1])))
+    #@debug("get processed_df size: $(size(univdata.processed_df))")
     univdata.department_names = dept_name
 end;
 
@@ -73,8 +76,11 @@ end;
 
 function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, audit_config)   
     new_dept_names = []
+    #@debug("process_each_dept - Dept Names: $(univdata.department_names)")
     for (index, value) in enumerate(univdata.department_names)
         input = filter(:orgname => contains(value), univdata.processed_df)
+        #@debug("process_each_dept - input size: $(size(input))")
+        #@debug("process_each_dept - dept name: $(input.orgname[1])")
         res = preprocess_um_data(input, univdata.first_year, univdata.num_years, audit_config)
         if describe(res.processed_data[:, [:act_deptn]], :mean)[1,2] == 0.0
             @info("dept data empty:  $value")
@@ -82,6 +88,8 @@ function _process_each_dept!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM, a
         else            
             push!(univdata.dept_data_vector, res)
             @info("department added: $value")
+            #@debug("process_each_dept - size of dept_data_vector: $(length(univdata.dept_data_vector))")
+            @debug("process_each_dept - size of results df: $(size(res.processed_data))")
             push!(new_dept_names, value)
             @debug("rows processed: $(nrow(res.processed_data))")
         end
@@ -104,13 +112,13 @@ function _postprocess_data_arrays!(univdata::JuliaGendUniv_Types.GendUnivData, :
 end;
 
 function _postprocess_data_arrays_all_depts!(univdata::JuliaGendUniv_Types.GendUnivData, ::UM)
-
-    t1 = univdata.dept_data_vector[1].processed_data
-    #t2 = [univdata.dept_data_vector[i].cluster_vector[1:univdata.num_years*6] for i in 1:length(univdata.dept_data_vector)]
-    @debug("length of sindy matrix: $(size(univdata.dept_data_vector[1].sindy_matrix))")
+    @debug("size of dept data vector: $(size(univdata.dept_data_vector))")
+    t1 = univdata.dept_data_vector[end].processed_data
+    #t2 = [univdata.dept_data_vector[end].cluster_vector[1:univdata.num_years*6] for i in 1:length(univdata.dept_data_vector)]
+    @debug("length of sindy matrix: $(size(univdata.dept_data_vector[end].sindy_matrix))")
     @debug("size I am trying to access: $(1:univdata.num_years)")
-    t3 = univdata.dept_data_vector[1].sindy_matrix
-    t4 = univdata.dept_data_vector[1].bootstrap_df
+    t3 = univdata.dept_data_vector[end].sindy_matrix
+    t4 = univdata.dept_data_vector[end].bootstrap_df
     univdata.processed_df = t1
     #univdata.univ_cluster_matrix = reduce(hcat, t2)
     univdata.univ_sindy_matrix = t3
@@ -294,15 +302,15 @@ function preprocess_data(univ_data::JuliaGendUniv_Types.GendUnivData,
         _process_each_dept!(univ_data, config, audit_config)
         _postprocess_data_arrays_all_depts!(univ_data, config)
         if isempty(combined_df)
-            combined_df = hcat(univ_data.dept_data_vector[1].processed_data, 
-                            univ_data.dept_data_vector[1].bootstrap_df,
+            combined_df = hcat(univ_data.dept_data_vector[end].processed_data, 
+                            univ_data.dept_data_vector[end].bootstrap_df,
                             makeunique=true)
         else
-            @debug("size of processed data: $(size(univ_data.dept_data_vector[1].processed_data))")
-            @debug("size of bootstrap data: $(size(univ_data.dept_data_vector[1].bootstrap_df))")
+            @debug("size of processed data: $(size(univ_data.dept_data_vector[end].processed_data))")
+            @debug("size of bootstrap data: $(size(univ_data.dept_data_vector[end].bootstrap_df))")
 
-            tdf = hcat(univ_data.dept_data_vector[1].processed_data, 
-                        univ_data.dept_data_vector[1].bootstrap_df,
+            tdf = hcat(univ_data.dept_data_vector[end].processed_data, 
+                        univ_data.dept_data_vector[end].bootstrap_df,
                         makeunique=true)
             append!(combined_df, tdf, promote=true)
         end
